@@ -5,4 +5,14 @@ muxun Infra repository
 
 `ssh -tA home@35.210.12.2 ssh 10.132.0.3`
 
+---
+
+---
+Конфигурация подеключения
 #
+
+```
+bastion_IP = 35.210.12.2
+someinternalhost_IP = 10.156.0.3
+
+```
