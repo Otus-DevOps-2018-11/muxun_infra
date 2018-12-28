@@ -31,13 +31,12 @@ Host bastion
 
 Host someinternalhost
         ProxyCommand ssh -A bastion -W 10.132.0.3:22
-
-
+```
 
 ---
 
-Конфигурация подеключения
-#
+Конфигурация подключения
+
 
 ```
 bastion_IP = 35.210.12.2
