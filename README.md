@@ -74,3 +74,17 @@ gcloud compute instances create reddit-app \
 ----metadata-from-file startup-script=startup_script.sh
 
 ```
+
+
+создание правила фаерволла для рандомного порта 8080(вместо 9292)
+
+```
+gcloud compute firewall-rules create another-default-puma-server \
+ --network default  \
+ --action allow  \
+--direction ingress \
+--rules tcp:8080  \
+--source-ranges=0.0.0.0/0 \ 
+--priority 1000  \
+--target-tags puma-server
+```
