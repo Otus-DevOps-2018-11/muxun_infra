@@ -52,7 +52,7 @@ someinternalhost_IP = 10.132.0.3
 ## Домашнее задание № 4
 
 создан инстанс из gcloud <br> 
-установленны ruby и mongodb <br>
+установлены ruby и mongodb <br>
 задеплоено реддит прриложение <br>
 
 
@@ -60,5 +60,17 @@ someinternalhost_IP = 10.132.0.3
 testapp_IP = 34.76.222.110
 testapp_port = 9292
 ```
+создание нового инстанса с 
+параметром стартап-скрипта 
 
+```
+gcloud compute instances create reddit-app \
+--boot-disk-size=10GB \
+--image-family ubuntu-1604-lts \
+--image-project=ubuntu-os-cloud \
+--machine-type=g1-small \
+--tags puma-server \
+--restart-on-failure \
+----metadata-from-file startup-script=startup_script.sh
 
+```
