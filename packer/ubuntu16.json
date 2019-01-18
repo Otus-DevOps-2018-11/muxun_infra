@@ -21,7 +21,7 @@
 
 	{
 	"type": "shell",
-	"script": "script/install_mongodb.sh"
+	"script": "script/install_mongodb.sh",
 	"execute_command": "sudo {{.Path}}"
 	}
 
