@@ -49,7 +49,7 @@ someinternalhost_IP = 10.132.0.3
 
 
 
-## Домашнее задание № 4
+<details><summary># Домашнее задание № 4</summary><p>
 
 создан инстанс из gcloud <br> 
 установлены ruby и mongodb <br>
@@ -88,3 +88,6 @@ gcloud compute firewall-rules create another-default-puma-server \
 --priority 1000  \
 --target-tags puma-server
 ```
+
+
+</p></details>
