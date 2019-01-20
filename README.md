@@ -1,5 +1,5 @@
 # muxun_infra
-<details><summary>Домашнее задание №3 bastion-host</summary><p>
+<details><summary>Домашнее задание № 3 bastion-host</summary><p>
 
 ---
 
@@ -92,7 +92,8 @@ gcloud compute firewall-rules create another-default-puma-server \
 </p></details>
 
 <details><summary>Домашнее задание № 5 packer</summary><p>
-Packer - создание образов VM для различных провайдеров
+Packer - создание образов VM для различных провайдеров<br>
+
 * установлен packer
 
 ```
@@ -208,6 +209,66 @@ gcloud auth application-default login
 
 ```
 packer build -var-file=variables.json ubuntu16.json
+```
+
+* добавлены параметры builder для GCP:
+	- описание образа
+	- размер и тип диска
+	- название сети
+	- теги
+
+```
+{
+   "variables": 
+	{
+	"project_id": null,
+	"source_image_family": null,
+	"machine_type": "f1-micro",
+	"image_description": "standart puma server on ubuntu",
+	"disk_size": "10",
+	"disk_type": "pd-standart",
+	"network": "default",
+	"tags": "reddit-app,http-server,https-server"
+	}
+	,
+
+
+
+
+  "builders": [
+	{
+	"type": "googlecompute",
+	"project_id": "{{user `project_id`}}",
+	"image_name": "reddit-base-{{timestamp}}",
+	"image_family": "reddit-base",
+	"source_image_family": "{{user `source_image_family`}}",
+	"zone": "europe-west1-b",
+	"ssh_username": "muxund",
+	"machine_type": "{{user `machine_type`}}",
+	"image_description": "{{user `image_description`}}",
+	"disk_size": "{{user `disk_size`}}",
+	"disk_type": "{{user `disk_type`}}",
+	"network": "{{user `network`}}",
+	"tags": "{{user `tags`}}"
+
+	}
+	],
+
+ "provisioners": [
+	{
+	"type": "shell",
+	"script": "script/install_ruby.sh",
+	"execute_command": "sudo {{.Path}}"
+	},
+
+	{
+	"type": "shell",
+	"script": "script/install_mongodb.sh",
+	"execute_command": "sudo {{.Path}}"
+	}
+
+	]
+}
 ```
 
 
