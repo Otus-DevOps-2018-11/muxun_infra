@@ -1,6 +1,5 @@
 # muxun_infra
-muxun Infra repository
-<details><summary>Домашнее задание №3</summary><p>
+<details><summary>Домашнее задание № 3 bastion-host</summary><p>
 
 ---
 
@@ -49,7 +48,7 @@ someinternalhost_IP = 10.132.0.3
 
 
 
-## Домашнее задание № 4
+<details><summary>Домашнее задание № 4 gcloud</summary><p>
 
 создан инстанс из gcloud <br> 
 установлены ruby и mongodb <br>
@@ -88,3 +87,191 @@ gcloud compute firewall-rules create another-default-puma-server \
 --priority 1000  \
 --target-tags puma-server
 ```
+
+
+</p></details>
+
+<details><summary>Домашнее задание № 5 packer</summary><p>
+Packer - создание образов VM для различных провайдеров<br>
+
+* установлен packer
+
+```
+cd ~
+wget https://releases.hashicorp.com/packer/1.3.3/packer_1.3.3_linux_amd64.zip
+unzip packer_1.3.3_linux_amd64.zip
+sudo mv packer /usr/lib
+rm packer_1.3.3_linux_amd64.zip
+
+```
+
+* произведена авторизация для аутентификации packer и terraform в GCP
+
+```
+gcloud auth application-default login
+
+```
+
+* создан шаблон для packer
+
+```
+
+ "builders": [
+ {
+ "type": "googlecompute",
+ "project_id": "infra-226-212",
+ "image_name": "reddit-base-{{timestamp}}",
+ "image_family": "reddit-base",
+ "source_image_family": "ubuntu-1604-lts",
+ "zone": "europe-west1-b",
+ "ssh_username": "appuser",
+ "machine_type": "f1-micro"
+ }
+ ],
+ "provisioners": [
+ {
+ "type": "shell",
+ "script": "script/install_ruby.sh",
+ "execute_command": "sudo {{.Path}}"
+ },
+ {
+ "type": "shell",
+ "script": "script/install_mongodb.sh",
+ "execute_command": "sudo {{.Path}}"
+ }
+ ]
+}
+
+```
+
+* на основе шаблона создан образ ubuntu1604 с предустановленными ruby и mongodb
+* на основе образа создан инстанс и задеплоено приложение puma-server
+* добавлено правило фаерволла для доступа к порту приложения 9292 инстанса reddit-app
+
+* в шаблон добавлены параметры пользователя: обязательные для указания и указанные в самом шаблоне
+
+```
+{
+   "variables": [
+        {
+        "project_id": null,
+        "source_image_family": null,
+        "machine_type": "f1-micro"
+        }
+        ],
+
+
+
+
+  "builders": [
+        {
+        "type": "googlecompute",
+        "project_id": "{{user `project_id`}}",
+        "image_name": "reddit-base-{{timestamp}}",
+        "image_family": "reddit-base",
+        "source_image_family": "{{user `source_image_family`}}",
+        "zone": "europe-west1-b",
+        "ssh_username": "muxund",
+        "machine_type": "{{user `machine_type`}}"
+        }
+        ],
+
+ "provisioners": [
+        {
+        "type": "shell",
+        "script": "script/install_ruby.sh",
+        "execute_command": "sudo {{.Path}}"
+        },
+
+        {
+        "type": "shell",
+        "script": "script/install_mongodb.sh",
+        "execute_command": "sudo {{.Path}}"
+        }
+
+        ]
+}
+
+```
+*  созданы файлы переменных variables.json и variables.json.example с содержанием:
+
+```
+{
+
+"project_id": "infra-226212",
+"source_image_family": "ubuntu-1604-lts"
+
+}
+
+```
+
+эти перменные будут вставляться в шаблон при создании образа с помощью команды:
+
+```
+packer build -var-file=variables.json ubuntu16.json
+```
+
+* добавлены параметры builder для GCP:
+	- описание образа
+	- размер и тип диска
+	- название сети
+	- теги
+
+```
+{
+   "variables": 
+	{
+	"project_id": null,
+	"source_image_family": null,
+	"machine_type": "f1-micro",
+	"image_description": "standart puma server on ubuntu",
+	"disk_size": "10",
+	"disk_type": "pd-standart",
+	"network": "default",
+	"tags": "reddit-app,http-server,https-server"
+	}
+	,
+
+
+
+
+  "builders": [
+	{
+	"type": "googlecompute",
+	"project_id": "{{user `project_id`}}",
+	"image_name": "reddit-base-{{timestamp}}",
+	"image_family": "reddit-base",
+	"source_image_family": "{{user `source_image_family`}}",
+	"zone": "europe-west1-b",
+	"ssh_username": "muxund",
+	"machine_type": "{{user `machine_type`}}",
+	"image_description": "{{user `image_description`}}",
+	"disk_size": "{{user `disk_size`}}",
+	"disk_type": "{{user `disk_type`}}",
+	"network": "{{user `network`}}",
+	"tags": "{{user `tags`}}"
+
+	}
+	],
+
+ "provisioners": [
+	{
+	"type": "shell",
+	"script": "script/install_ruby.sh",
+	"execute_command": "sudo {{.Path}}"
+	},
+
+	{
+	"type": "shell",
+	"script": "script/install_mongodb.sh",
+	"execute_command": "sudo {{.Path}}"
+	}
+
+	]
+}
+```
+
+
+
+</p></details>
+
