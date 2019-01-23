@@ -26,6 +26,15 @@ resource "google_compute_instance" "app" {
 		ssh-keys = "muxund:${file("~/.ssh/id_rsa.pub")}"
 	}
 
+	#=====SSH_FOR_PROVISIONERS
+	connection {
+		type 	= "ssh"
+		user 	= "muxund"
+		agent 	= false
+		private_key = "${file("~/.ssh/id_rsa")}"
+	}
+
+	#=====PROVISIONERS======
 	provisioner "file" {
 		source		= "files/puma.service"
 		destination	= "/tmp/puma.service"
