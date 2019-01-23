@@ -9,7 +9,7 @@ provider "google" {
 resource "google_compute_instance" "app" {
 	name 		= "reddit-app"
 	machine_type 	= "g1-small"
-	zone		= "europe-west1-b"
+	zone		= "${var.zone}"
 	tags = ["reddit-app"]
 	#определение загрузочного диска
 	boot_disk {
@@ -35,7 +35,7 @@ resource "google_compute_instance" "app" {
 		type 	= "ssh"
 		user 	= "muxund"
 		agent 	= false
-		private_key = "${file("~/.ssh/id_rsa")}"
+		private_key = "${file(var.private_key_path)}"
 	}
 
 	#=====PROVISIONERS======

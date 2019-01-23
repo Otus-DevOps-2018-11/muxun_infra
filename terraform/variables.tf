@@ -15,3 +15,8 @@ variable public_key_path {
 variable disk_image {
 	description = "Disk image"
 }
+
+variable zone {
+	description = "zone of creating instance"
+	default = "europe-west1-b"
+}
