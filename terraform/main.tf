@@ -25,6 +25,16 @@ resource "google_compute_instance" "app" {
 	metadata {
 		ssh-keys = "muxund:${file("~/.ssh/id_rsa.pub")}"
 	}
+
+	provisioner "file" {
+		source		= "files/puma.service"
+		destination	= "/tmp/puma.service"
+	}
+
+	provisioner "remote-exec" {
+		script = "files/deploy.sh"
+	}
+	
 }
 
 
