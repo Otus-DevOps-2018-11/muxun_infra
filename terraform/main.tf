@@ -74,3 +74,5 @@ resource "google_compute_firewall" "firewall_puma" {
   # правила дл яинстансов с тегами
   target_tags = ["reddit-app"]
 }
+
+
