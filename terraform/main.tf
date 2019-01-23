@@ -21,5 +21,7 @@ resource "google_compute_instance" "app" {
 		# использовать ephimeral IP для доступа в интернет
 		access_config {}
 	}
-
+	metadata {
+		ssh-keys = "muxund:${file("~/.ssh/id_rsa.pub")}"
+	}
 }
