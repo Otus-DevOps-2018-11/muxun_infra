@@ -275,3 +275,262 @@ packer build -var-file=variables.json ubuntu16.json
 
 </p></details>
 
+
+<details><summary>Домашнее задание № 6 terraform-1</summary><p>
+* установлен terraform
+```
+    wget https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip \ 
+    && unzip terraform_0.11.11_linux_amd64.zip \
+    && sudo mv terraform /usr/bin \
+    && terraform --version
+```
+
+* установен  и проинициализирован провайде в файле main.tf
+```
+    13:53 $ terraform init
+    
+    Initializing provider plugins...
+    - Checking for available provider plugins on https://releases.hashicorp.com...
+    - Downloading plugin for provider "google" (1.4.0)...
+    
+    Terraform has been successfully initialized!
+    
+    You may now begin working with Terraform. Try running "terraform plan" to see
+    any changes that are required for your infrastructure. All Terraform commands
+    should now work.
+    
+    If you ever set or change modules or backend configuration for Terraform,
+    rerun this command to reinitialize your working directory. If you forget, other
+```
+
+* определty в файле main.tf ресурс для создания VM
+```
+    provider "google" {
+            version = "1.4.0"
+            project = "infra-226212"
+            region = "europe-west1"
+    }
+    
+    resource "google_compute_instance" "app" {
+            name            = "reddit-app"
+            machine_type    = "g1-small"
+            zone            = "europe-west1-b"
+            #определение загрузочного диска
+            boot_disk {
+                    initialize_params {
+                            image = "reddit-base-1547821025"
+                    }
+            }
+            #определение сетевого интерфейса
+            network_interface {
+                    # сеть , к которой присоеденить интерфейс
+                    network = "default"
+                    # использовать ephimeral IP для доступа в интернет
+                    access_config {}
+            }
+    
+    }
+```
+
+* перед установкой изменений проверим корректность конфиурации
+
+ 
+```
+    15:10 $ terraform plan
+    Refreshing Terraform state in-memory prior to plan...
+    The refreshed state will be used to calculate this plan, but will not be
+    persisted to local or remote state storage.
+    
+    
+    ------------------------------------------------------------------------
+    
+    An execution plan has been generated and is shown below.
+    Resource actions are indicated with the following symbols:
+      + create
+    
+    Terraform will perform the following actions:
+    
+      + google_compute_instance.app
+          id:                                                  <computed>
+          boot_disk.#:                                         "1"
+          boot_disk.0.auto_delete:                             "true"
+          boot_disk.0.device_name:                             <computed>
+          boot_disk.0.disk_encryption_key_sha256:              <computed>
+          boot_disk.0.initialize_params.#:                     "1"
+          boot_disk.0.initialize_params.0.image:               "reddit-base-1547821025"
+          can_ip_forward:                                      "false"
+          cpu_platform:                                        <computed>
+          create_timeout:                                      "4"
+          instance_id:                                         <computed>
+          label_fingerprint:                                   <computed>
+          machine_type:                                        "g1-small"
+          metadata_fingerprint:                                <computed>
+          name:                                                "reddit-app"
+          network_interface.#:                                 "1"
+          network_interface.0.access_config.#:                 "1"
+          network_interface.0.access_config.0.assigned_nat_ip: <computed>
+          network_interface.0.access_config.0.nat_ip:          <computed>
+          network_interface.0.address:                         <computed>
+          network_interface.0.name:                            <computed>
+          network_interface.0.network:                         "default"
+          network_interface.0.network_ip:                      <computed>
+          network_interface.0.subnetwork_project:              <computed>
+          project:                                             <computed>
+          scheduling.#:                                        <computed>
+          self_link:                                           <computed>
+          tags_fingerprint:                                    <computed>
+          zone:                                                "europe-west1-b"
+    
+    
+    Plan: 1 to add, 0 to change, 0 to destroy.
+    
+    ------------------------------------------------------------------------
+    
+    Note: You didn't specify an "-out" parameter to save this plan, so Terraform
+    can't guarantee that exactly these actions will be performed if
+    "terraform apply" is subsequently run.
+```
+* создана инфраструктура 
+```
+    15:25 $ terraform apply 
+    
+    An execution plan has been generated and is shown below.
+    Resource actions are indicated with the following symbols:
+      + create
+    
+    Terraform will perform the following actions:
+    
+      + google_compute_instance.app
+          id:                                                  <computed>
+          boot_disk.#:                                         "1"
+          boot_disk.0.auto_delete:                             "true"
+          boot_disk.0.device_name:                             <computed>
+          boot_disk.0.disk_encryption_key_sha256:              <computed>
+          boot_disk.0.initialize_params.#:                     "1"
+          boot_disk.0.initialize_params.0.image:               "reddit-base-1547821025"
+          can_ip_forward:                                      "false"
+          cpu_platform:                                        <computed>
+          create_timeout:                                      "4"
+          instance_id:                                         <computed>
+          label_fingerprint:                                   <computed>
+          machine_type:                                        "g1-small"
+          metadata_fingerprint:                                <computed>
+          name:                                                "reddit-app"
+          network_interface.#:                                 "1"
+          network_interface.0.access_config.#:                 "1"
+          network_interface.0.access_config.0.assigned_nat_ip: <computed>
+          network_interface.0.access_config.0.nat_ip:          <computed>
+          network_interface.0.address:                         <computed>
+          network_interface.0.name:                            <computed>
+          network_interface.0.network:                         "default"
+          network_interface.0.network_ip:                      <computed>
+          network_interface.0.subnetwork_project:              <computed>
+          project:                                             <computed>
+          scheduling.#:                                        <computed>
+          self_link:                                           <computed>
+          tags_fingerprint:                                    <computed>
+          zone:                                                "europe-west1-b"
+    
+    
+    Plan: 1 to add, 0 to change, 0 to destroy.
+    
+    Do you want to perform these actions?
+      Terraform will perform the actions described above.
+      Only 'yes' will be accepted to approve.
+    
+      Enter a value: yes
+    
+    google_compute_instance.app: Creating...
+      boot_disk.#:                                         "" => "1"
+      boot_disk.0.auto_delete:                             "" => "true"
+      boot_disk.0.device_name:                             "" => "<computed>"
+      boot_disk.0.disk_encryption_key_sha256:              "" => "<computed>"
+      boot_disk.0.initialize_params.#:                     "" => "1"
+      boot_disk.0.initialize_params.0.image:               "" => "reddit-base-1547821025"
+      can_ip_forward:                                      "" => "false"
+      cpu_platform:                                        "" => "<computed>"
+      create_timeout:                                      "" => "4"
+      instance_id:                                         "" => "<computed>"
+      label_fingerprint:                                   "" => "<computed>"
+      machine_type:                                        "" => "g1-small"
+      metadata_fingerprint:                                "" => "<computed>"
+      name:                                                "" => "reddit-app"
+      network_interface.#:                                 "" => "1"
+      network_interface.0.access_config.#:                 "" => "1"
+      network_interface.0.access_config.0.assigned_nat_ip: "" => "<computed>"
+      network_interface.0.access_config.0.nat_ip:          "" => "<computed>"
+      network_interface.0.address:                         "" => "<computed>"
+      network_interface.0.name:                            "" => "<computed>"
+      network_interface.0.network:                         "" => "default"
+      network_interface.0.network_ip:                      "" => "<computed>"
+      network_interface.0.subnetwork_project:              "" => "<computed>"
+      project:                                             "" => "<computed>"
+      scheduling.#:                                        "" => "<computed>"
+      self_link:                                           "" => "<computed>"
+      tags_fingerprint:                                    "" => "<computed>"
+      zone:                                                "" => "europe-west1-b"
+    google_compute_instance.app: Still creating... (10s elapsed)
+    google_compute_instance.app: Creation complete after 16s (ID: reddit-app)
+    
+    Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+```
+
+* добавлен в секцию resources пункт metadata
+```
+    metadata {
+                    ssh-keys = "muxund:${file("~/.ssh/id_rsa.pub")}"            }
+```
+
+
+* создадан  файл outputs.tf
+
+```
+    output "app_external_ip" {
+     value = "${google_compute_instance.app.network_interface.0.access_config.0.assigned_nat_ip}"
+    
+
+```
+* задано с помощью терраформа правило фаерволла
+```
+    resource "google_compute_firewall" "firewall_puma" {
+            name    = "allow-puma-default"
+            #название сети , в которой действует правило
+            network = "default"
+            # что разрешаем 
+            allow {
+                    protocol = "tcp"
+                    ports    = ["9292"]
+            }
+            # откуда разрешаем доступ
+            source_ranges = ["0.0.0.0/0"]
+            # правила дл яинстансов с тегами
+            target_tags = ["reddit-app"]
+```
+
+* дополен main.tf провижинами
+
+```
+    provisioner "file" {
+    source = "files/puma.service"
+    destination = "/tmp/puma.service"
+    }
+    
+    provisioner "remote-exec" {
+     script = "files/deploy.sh"
+    }
+```
+
+* определены параметры подключения для провиженов
+```
+connection {
+ type = "ssh"
+ user = "muxund"
+ agent = false
+ private_key = "${file("~/.ssh/id_rsa")}"
+ }
+```
+
+* созданы файлы с переменными и определены  variable
+
+</p></details>
+
