@@ -1,3 +1,4 @@
+#====PROVIDER====
 provider "google" {
   version = "1.4.0"
 
@@ -8,6 +9,8 @@ provider "google" {
   region = "${var.region}"
 }
 
+
+#====INSTANCE====
 resource "google_compute_instance" "app" {
   name         = "reddit-app"
   machine_type = "g1-small"
@@ -28,7 +31,9 @@ resource "google_compute_instance" "app" {
     network = "default"
 
     # использовать ephimeral IP для доступа в интернет
-    access_config {}
+    access_config {
+		nat_ip = "$(google_compute_address.app_ip.address)"
+	}
   }
 
   metadata {
@@ -56,6 +61,8 @@ resource "google_compute_instance" "app" {
   }
 }
 
+
+#====FIREWALL PUMA===
 resource "google_compute_firewall" "firewall_puma" {
   name = "allow-puma-default"
 
@@ -75,4 +82,22 @@ resource "google_compute_firewall" "firewall_puma" {
   target_tags = ["reddit-app"]
 }
 
+#====FIREWALL SSH====
+resource "google_compute_firewall" "firewall_ssh" {
+	name = "default-allow-ssh"
+	network = "default"
+	
+	allow {
+		protocol = "tcp"
+		ports = ["22"]
+	}
+	
+	source_ranges = ["0.0.0.0/0"]
 
+}
+
+
+#====ADRESS====
+resource "google_compute_address" "app_ip" {
+	name = "reddit-app-ip"
+}
