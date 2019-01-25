@@ -1,105 +1,27 @@
-#====PROVIDER====
 provider "google" {
-  version = "1.4.0"
-
-  # project = "infra-226212"
-  # region = "europe-west1"
-  project = "${var.project}"
-
-  region = "${var.region}"
+  version 	= "1.4.0"
+  project 	= "${var.project}"
+  region 	= "${var.region}"
 }
 
-#====INSTANCE====
-resource "google_compute_instance" "app" {
-  name         = "reddit-app"
-  machine_type = "g1-small"
-  zone         = "${var.zone}"
-  tags         = ["reddit-app"]
 
-  #определение загрузочного диска
-  boot_disk {
-    initialize_params {
-      #	image = "reddit-base-1547821025"
-      image = "${var.disk_image}"
-    }
-  }
+module "app" {
+	source		= "modules/app"
+	public_key_path = "${var.public_key_path}"
+	zone		= "${var.zone}"
+	app_disk_image	= "${var.app_disk_image}"
 
-  #определение сетевого интерфейса
-  network_interface {
-    # сеть , к которой присоеденить интерфейс
-    network = "default"
-
-    # использовать ephimeral IP для доступа в интернет
-    access_config {
-      nat_ip = "${google_compute_address.app_ip.address}"
-    }
-  }
-
-  metadata {
-    #ssh-keys = "muxund:${file("~/.ssh/id_rsa.pub")}"
-    ssh-keys = "muxund:${file(var.public_key_path)}"
-  }
-
-  #=====SSH_FOR_PROVISIONERS
-  connection {
-    type        = "ssh"
-    user        = "muxund"
-    agent       = false
-    private_key = "${file(var.private_key_path)}"
-  }
-
-  #=====PROVISIONERS======
-  provisioner "file" {
-    source      = "files/puma.service"
-    destination = "/tmp/puma.service"
-  }
-
-  provisioner "remote-exec" {
-    script = "files/deploy.sh"
-  }
 }
 
-#====FIREWALL PUMA===
-resource "google_compute_firewall" "firewall_puma" {
-  name = "allow-puma-default"
-
-  #название сети , в которой действует правило
-  network = "default"
-
-  # что разрешаем 
-  allow {
-    protocol = "tcp"
-    ports    = ["9292"]
-  }
-
-  # откуда разрешаем доступ
-  source_ranges = ["0.0.0.0/0"]
-
-  # правила дл яинстансов с тегами
-  target_tags = ["reddit-app"]
+module "db" {
+	source		= "modules/db"
+	public_key_path	= "${var.public_key_path}"
+	zone		= "${var.zone}"
+	db_disk_image	= "${var.db_disk_image}"
 }
 
-#====FIREWALL SSH====
-resource "google_compute_firewall" "firewall_ssh" {
-  name    = "default-allow-ssh"
-  network = "default"
+module "vpc" {
+	source		= "modules/vpc"
+	source_ranges	= ["0.0.0.0/0"]
 
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-}
-
-#====ADDRESS====
-resource "google_compute_address" "app_ip" {
-  name   = "reddit-app-ip"
-  region = "${var.region}"
-}
-
-#=====SSH FOR PROJECT
-resource "google_compute_project_metadata_item" "default" {
-  key   = "ssh-keys"
-  value = "muxund:${file(var.public_key_path)}"
 }
