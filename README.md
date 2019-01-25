@@ -277,7 +277,9 @@ packer build -var-file=variables.json ubuntu16.json
 
 
 <details><summary>Домашнее задание № 6 terraform-1</summary><p>
+
 * установлен terraform
+
 ```
     wget https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip \ 
     && unzip terraform_0.11.11_linux_amd64.zip \
@@ -286,6 +288,7 @@ packer build -var-file=variables.json ubuntu16.json
 ```
 
 * установен  и проинициализирован провайде в файле main.tf
+
 ```
     13:53 $ terraform init
     
@@ -304,6 +307,7 @@ packer build -var-file=variables.json ubuntu16.json
 ```
 
 * определty в файле main.tf ресурс для создания VM
+
 ```
     provider "google" {
             version = "1.4.0"
