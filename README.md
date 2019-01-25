@@ -540,7 +540,8 @@ connection {
 
 
 
-<details><summary> Домашнее задание № 6 terraform-2</summary></details>
+<details><summary> Домашнее задание № 6 terraform-2</summary>
+<p>
 
 * создано правило фаерволла для ssh порта
 
@@ -664,6 +665,6 @@ output storage-bucket_url {
 
 
 ```
-
+</p></details>
 
  
