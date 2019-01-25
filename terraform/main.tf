@@ -31,7 +31,7 @@ resource "google_compute_instance" "app" {
 
     # использовать ephimeral IP для доступа в интернет
     access_config {
-      nat_ip = "$(google_compute_address.app_ip.address)"
+      nat_ip = "${google_compute_address.app_ip.address}"
     }
   }
 
