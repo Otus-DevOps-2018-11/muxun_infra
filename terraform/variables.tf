@@ -12,7 +12,7 @@ variable public_key_path {
 }
 
 variable private_key_path {
-	description = "Path to private key"
+  description = "Path to private key"
 }
 
 variable disk_image {
@@ -23,4 +23,3 @@ variable zone {
   description = "zone of creating instance"
   default     = "europe-west1-b"
 }
-

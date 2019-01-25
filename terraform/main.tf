@@ -2,13 +2,12 @@
 provider "google" {
   version = "1.4.0"
 
-  #	project = "infra-226212"
-  #	region = "europe-west1"
+  # project = "infra-226212"
+  # region = "europe-west1"
   project = "${var.project}"
 
   region = "${var.region}"
 }
-
 
 #====INSTANCE====
 resource "google_compute_instance" "app" {
@@ -32,15 +31,14 @@ resource "google_compute_instance" "app" {
 
     # использовать ephimeral IP для доступа в интернет
     access_config {
-		nat_ip = "$(google_compute_address.app_ip.address)"
-	}
+      nat_ip = "$(google_compute_address.app_ip.address)"
+    }
   }
 
   metadata {
     #	ssh-keys = "muxund:${file("~/.ssh/id_rsa.pub")}"
     ssh-keys = "muxund:${file(var.public_key_path)}"
   }
-	
 
   #=====SSH_FOR_PROVISIONERS
   connection {
@@ -60,7 +58,6 @@ resource "google_compute_instance" "app" {
     script = "files/deploy.sh"
   }
 }
-
 
 #====FIREWALL PUMA===
 resource "google_compute_firewall" "firewall_puma" {
@@ -84,20 +81,19 @@ resource "google_compute_firewall" "firewall_puma" {
 
 #====FIREWALL SSH====
 resource "google_compute_firewall" "firewall_ssh" {
-	name = "default-allow-ssh"
-	network = "default"
-	
-	allow {
-		protocol = "tcp"
-		ports = ["22"]
-	}
-	
-	source_ranges = ["0.0.0.0/0"]
+  name    = "default-allow-ssh"
+  network = "default"
 
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
 }
-
 
 #====ADRESS====
 resource "google_compute_address" "app_ip" {
-	name = "reddit-app-ip"
+  name   = "reddit-app-ip"
+  region = "${var.region}"
 }
