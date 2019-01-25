@@ -1,8 +1,6 @@
-
 variable public_key_path {
   description = "Path to the public key used for ssh acess"
 }
-
 
 variable zone {
   description = "zone of creating instance"
@@ -10,8 +8,6 @@ variable zone {
 }
 
 variable app_disk_image {
-	description = "Disk image for reddit app"
-	default = "reddit-app-1548414068"
-
+  description = "Disk image for reddit app"
+  default     = "reddit-app-1548414068"
 }
-
