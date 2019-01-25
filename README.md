@@ -306,7 +306,7 @@ packer build -var-file=variables.json ubuntu16.json
     rerun this command to reinitialize your working directory. If you forget, other
 ```
 
-* определty в файле main.tf ресурс для создания VM
+* определил в файле main.tf ресурс для создания VM
 
 ```
     provider "google" {
@@ -538,3 +538,132 @@ connection {
 
 </p></details>
 
+
+
+<details><summary> Домашнее задание № 6 terraform-2</summary></details>
+
+* создано правило фаерволла для ssh порта
+
+```
+#====FIREWALL SSH====
+resource "google_compute_firewall" "firewall_ssh" {
+  name    = "default-allow-ssh"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+}
+
+```
+
+* в терраформ стэйт импортироване правило ssh портя, объявленное ранее
+
+* создана неявная зависимость ресурсов внешнего ip и  ip инстанса
+
+```
+
+#====INSTANCE====
+resource "google_compute_instance" "app" {
+  name         = "reddit-app"
+  machine_type = "g1-small"
+  zone         = "${var.zone}"
+  tags         = ["reddit-app"]
+  boot_disk {
+    initialize_params {
+      image = "${var.disk_image}"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {
+      nat_ip = "${google_compute_address.app_ip.address}"
+    }
+  }
+
+  /....
+}
+
+#====ADDRESS====
+resource "google_compute_address" "app_ip" {
+  name   = "reddit-app-ip"
+}
+
+
+```
+
+* в packer созданы шаблоны для подготовки образов app и db
+
+* конфигурация terraform разбита на несколько частей 
+	-app.tf
+	-db.tf
+	-main.tf
+	-vpc.tf
+
+* на основе предыдущих конфигураций созданы модули app db vpc
+
+```
+rovider "google" {
+  version = "1.4.0"
+  project = "${var.project}"
+  region  = "${var.region}"
+}
+
+module "app" {
+  source          = "../modules/app"
+  public_key_path = "${var.public_key_path}"
+  zone            = "${var.zone}"
+  app_disk_image  = "${var.app_disk_image}"
+}
+
+module "db" {
+  source          = "../modules/db"
+  public_key_path = "${var.public_key_path}"
+  zone            = "${var.zone}"
+  db_disk_image   = "${var.db_disk_image}"
+}
+
+module "vpc" {
+  source        = "../modules/vpc"
+  source_ranges = ["182.126.72.77/32"]
+}
+
+
+```
+
+* проверена работ по параметризации source_range  модуля vpc c помощью телнета
+
+* созданы конфигурации для окружений stage и prod с раздичными параметрами vpc
+
+* созданы 2 экземпляра storage-backet
+
+```
+provider "google" {
+        version = "1.4.0"
+        project = "${var.project}"
+        region  = "${var.region}"
+}
+
+
+module "storage-bucket" {
+        source = "SweetOps/storage-bucket/goog$
+        version = "0.1.1"
+
+        name = ["st_bucket1","st-bucket2"]
+
+}
+
+output storage-bucket_url {
+        value = "${module.storage-bucket.url}"
+}
+
+
+
+```
+
+
+ 
