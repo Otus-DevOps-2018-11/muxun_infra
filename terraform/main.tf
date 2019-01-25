@@ -36,7 +36,7 @@ resource "google_compute_instance" "app" {
   }
 
   metadata {
-    #	ssh-keys = "muxund:${file("~/.ssh/id_rsa.pub")}"
+    #ssh-keys = "muxund:${file("~/.ssh/id_rsa.pub")}"
     ssh-keys = "muxund:${file(var.public_key_path)}"
   }
 
@@ -92,13 +92,13 @@ resource "google_compute_firewall" "firewall_ssh" {
   source_ranges = ["0.0.0.0/0"]
 }
 
-#====ADRESS====
+#====ADDRESS====
 resource "google_compute_address" "app_ip" {
   name   = "reddit-app-ip"
   region = "${var.region}"
 }
 
-
+#=====SSH FOR PROJECT
 resource "google_compute_project_metadata_item" "default" {
   key   = "ssh-keys"
   value = "muxund:${file(var.public_key_path)}"
