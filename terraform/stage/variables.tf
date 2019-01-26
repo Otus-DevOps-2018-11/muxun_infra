@@ -15,9 +15,9 @@ variable private_key_path {
   description = "Path to private key"
 }
 
-variable disk_image {
-  description = "Disk image"
-}
+#variable disk_image {
+#  description = "Disk image"
+#}
 
 variable zone {
   description = "zone of creating instance"
