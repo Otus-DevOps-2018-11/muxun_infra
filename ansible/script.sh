@@ -8,6 +8,6 @@ APPSERVER_IP=$( terraform output | cut -d"=" -f2 | cut -d" " -f2)
 echo "
 {
 "\"$APPSERVER_NAME\"": {
-			"\"hosts\"": ["\"$APPSERVER_IP\""]
+			"\"hosts\"": "\"$APPSERVER_IP\""
 			       }
 }" > ../../ansible/inventory.json 
