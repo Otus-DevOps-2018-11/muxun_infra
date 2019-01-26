@@ -1,2 +1,2 @@
-appserver ansible_host=34.76.32.98   ansible_user=muxund ansible_private_key_file=~/.ssh/id_rsa
-dbserver  ansible_host=34.76.113.148 ansible_user=muxund ansible_private_key_file=~/.ssh/id_rsa
+appserver ansible_host=34.76.32.98 
+dbserver  ansible_host=34.76.113.148
