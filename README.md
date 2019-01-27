@@ -540,7 +540,7 @@ connection {
 
 
 
-<details><summary> Домашнее задание № 6 terraform-2</summary>
+<details><summary> Домашнее задание № 7 terraform-2</summary>
 <p>
 
 * создано правило фаерволла для ssh порта
@@ -665,6 +665,146 @@ output storage-bucket_url {
 
 
 ```
+</p></details>
+
+
+<details><summary> Домашняя работа № 8 ansible-1</summary>
+<p>
+
+* ansible установлен с помощью apt install
+* запущено stage окружение в терраформе и проверена доступность ssh telnetom
+* создан inventory файл для хоста app и проверена доступность с помощью пинг
+
+```
+✔ ~/otus/hw9/muxun_infra/ansible [ansible-1 L|…1] 
+13:50 $ ansible appserver -i ./inventory -m ping
+appserver | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+
+```
+
+* добавлен хост с базой данных в инвентори
+* создан и параметрезиован ansible.cfg
+
+```
+[defaults]
+inventory = ./inventory
+remote_user = muxund
+private_key_file = ~/.ssh/id_rsa
+host_key_checking = False
+retry_files_enabled = False
+```
+* проверен модуль ping с параметрами
+
+```
+✔ ~/otus/hw9/muxun_infra/ansible [ansible-1 L|✚ 1…1] 
+14:20 $ ansible appserver -m ping
+appserver | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+✔ ~/otus/hw9/muxun_infra/ansible [ansible-1 L|✚ 1…1] 
+14:21 $ ansible dbserver -m ping
+dbserver | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+
+
+```
+* проверены ad-hoc команды
+
+```
+4:24 $ ansible dbserver -m command -a uptime
+dbserver | SUCCESS | rc=0 >>
+ 11:28:28 up 55 min,  1 user,  load average: 0.00, 0.00, 0.00
+
+✔ ~/otus/hw9/muxun_infra/ansible [ansible-1 L|✔] 
+14:28 $ ansible dbserver -m command -a ifconfig
+dbserver | SUCCESS | rc=0 >>
+ens4      Link encap:Ethernet  HWaddr 42:01:0a:84:00:28  
+          inet addr:10.132.0.40  Bcast:10.132.0.40  Mask:255.255.255.255
+          inet6 addr: fe80::4001:aff:fe84:28/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1460  Metric:1
+          RX packets:1678 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1552 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:1996685 (1.9 MB)  TX bytes:162152 (162.1 KB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+```
+
+* создан inventory в формате yml и проверен
+
+```
+15:13 $ ansible all -m ping -i inventory.yaml 
+dbserver | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+appserver | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+```
+
+* проверены модули systemd и service
+
+```
+✔ ~/otus/hw9/muxun_infra/ansible [ansible-1 L|✚ 1…1] 
+15:25 $ ansible db -m service -a name=mongod
+dbserver | SUCCESS => {
+    "changed": false, 
+    "name": "mongod", 
+    "status": {
+        "ActiveEnterTimestamp": "Sat 2019-01-26 10:32:48 UTC", 
+        "ActiveEnterTimestampMonotonic": "13819239", 
+        "ActiveExitTimestampMonotonic": "0", 
+        "ActiveState": "active", 
+        "After": "sysinit.target basic.target network.target systemd-journald.socket system.slice", 
+        "AllowIsolate": "no", 
+        "AmbientCapabilities": "0", 
+        "AssertResult": "yes", 
+        "AssertTimestamp": "Sat 2019-01-26 10:32:48 UTC", 
+        "AssertTimestampMonotonic": "13818217", 
+        "Before": "multi-user.target shutdown.target", 
+        "BlockIOAccounting": "no", 
+        "BlockIOWeight": "18446744073709551615",
+.......................
+
+```
+
+* создан playbook с заданием деплоя приложения
+
+```
+✔ ~/otus/hw9/muxun_infra/ansible [ansible-1 L|✚ 1…2] 
+16:13 $ ansible-playbook clone.yml 
+
+PLAY [Clone] ********************************************************************************
+
+TASK [Gathering Facts] **********************************************************************
+ok: [appserver]
+
+TASK [Clone repo] ***************************************************************************
+changed: [appserver]
+
+PLAY RECAP **********************************************************************************
+appserver      
+```
+
+
+
+
+
 </p></details>
 
  
