@@ -1,0 +1,14 @@
+---
+- name: Config host and deploy application # Описание сценария
+  hosts: all # Хосты, на которых выполятся таски
+  vars:
+    mongo_bind_ip: 0.0.0.0 # переменная задается в vars
+  tasks: # блок тасков(заданий)
+    - name: Change mongo config file
+      become: true # выполняем задание от рута
+      template:
+        src:  templates/mongod.conf.j2 # путь до шаблона
+        dest: /etc/mongod.conf # целевой путь на удаленном хосте
+        mode: 0644  # права на файл
+      tags: db-tag   # тэги задания 
+
