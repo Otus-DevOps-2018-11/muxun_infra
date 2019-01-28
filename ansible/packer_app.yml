@@ -1,19 +1,12 @@
 ---
-- name:  Инсталирую руби и бандлер
+- name: Install Ruby && Bundler
   hosts: all
   become: true
   tasks:
-    - name: Инсталирование руби бандлера и пакетов
-      apt:
-        name: {{ruby_packs}}
-      update_cache: yes
-      vars:
-         ruby_packs:
-         - ruby-full
-         - ruby-bundler
-         - build-essential
-
-# Install ruby
-# apt update
-# apt install -y ruby-full ruby-bundler build-essential
-
+  # Установим в цикле все зависимости
+  - name: Install ruby and rubygems and required packages
+    apt: "name={{ item }} state=present"
+    with_items:
+      - ruby-full
+      - ruby-bundler
+      - build-essential
