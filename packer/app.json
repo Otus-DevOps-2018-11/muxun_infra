@@ -32,12 +32,25 @@
 	}
 	],
 
- "provisioners": [
-	{
-	"type": "shell",
-	"script": "script/install_ruby.sh",
-	"execute_command": "sudo {{.Path}}"
-	}
 
-	]
+# "provisioners": [
+#	{
+#	"type": "shell",
+#	"script": "script/install_ruby.sh",
+#	"execute_command": "sudo {{.Path}}"
+#	}
+#
+#	]
+
+
+ "provisioners": [
+       {
+       "type": "ansible",
+       "playbook_file": "ansible/packer_app.yml"
+       }
+
+       ]
+
+
+
 }

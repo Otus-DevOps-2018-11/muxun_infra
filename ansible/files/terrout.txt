@@ -1,3 +1,0 @@
-app_external_ip = 34.76.32.98
-db_external_ip = 34.76.113.148
-db_internal_ip = 10.132.0.48
