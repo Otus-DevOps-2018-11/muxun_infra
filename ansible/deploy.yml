@@ -1,0 +1,23 @@
+---
+
+- name: Деплой приложухи
+  hosts: app
+  tasks:
+    - name: граблю приложение из гита на апп
+      git:
+        repo: 'https://github.com/express42/reddit.git'
+        dest: /home/muxund/reddit
+        version: monolith
+      notify: restart puma
+
+    - name: инсталирую bundle на app
+      bundler:
+        state: present
+        chdir: /home/muxund/reddit
+
+  handlers:
+    - name: restart puma
+      become: true
+      systemd: name=puma state=restarted
+
+

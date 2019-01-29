@@ -26,10 +26,12 @@ variable zone {
 
 variable app_disk_image {
   description = "Disk image for reddit app"
-  default     = "reddit-app-1548414068"
+ # default     = "reddit-app-1548414068"
+  default = "reddit-app-1548687173"
 }
 
 variable db_disk_image {
   description = "Disk image for reddit db"
-  default     = "reddit-db-1548416636"
+ # default     = "reddit-db-1548416636"
+  default = "reddit-db-1548687690"
 }

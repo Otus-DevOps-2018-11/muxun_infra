@@ -668,7 +668,7 @@ output storage-bucket_url {
 </p></details>
 
 
-<details><summary> Домашняя работа № 8 ansible-1</summary>
+<details><summary> Домашнее задание № 8 ansible-1</summary>
 <p>
 
 * ansible установлен с помощью apt install
@@ -803,8 +803,317 @@ appserver
 
 
 
-
-
 </p></details>
+
+
+<details><summary> Домашнее задание № 9 ansible-2</summary>
+<p>
+
+* создан playbook для управления конфигурациями и деплоя приложения
+  - сценарии для каждого хоста
+  - шаблоны конфиг файлов
+  - сделан пробный прогон плэйбука
+  - введены хэндлеры \ таски для деплоя приложения
+  - плэйбук применён
+
+```
+
+✔ ~/otus/hw10/muxun_infra/ansible [ansible-2|✔] 
+10:55 $ cat reddit_app_one_play.yml 
+---
+- name: Config host and deploy application # Описание сценария
+  hosts: all # Хосты, на которых выполятся таски
+  vars:
+    mongo_bind_ip: 0.0.0.0 # переменная задается в vars
+    db_host: 10.132.0.48
+
+
+  tasks: # блок тасков(заданий)
+    - name: меняю конфиг монги на db 
+      become: true # выполняем задание от рута
+      template:
+        src:  templates/mongod.conf.j2 # путь до шаблона
+        dest: /etc/mongod.conf # целевой путь на удаленном хосте
+        mode: 0644  # права на файл
+      tags: db-tag   # тэги задания 
+      notify: restart mongod
+
+    - name: устанавливаю пума юнит на app
+      become: true
+      copy:
+        src:   files/puma.service
+        dest: /etc/systemd/system/puma.service
+      tags: app-tag
+      notify: reload puma
+
+    - name: добавляю конфиг подключения к бд на app
+      template:
+        src: templates/db_config.j2
+        dest: /home/muxund/db_config
+      tags: app-tag
+
+    - name: enable puma для app
+      become: true
+      systemd: name=puma enabled=yes
+      tags: app-tag
+
+    - name: граблю приложение из гита на апп
+      git:
+        repo: 'https://github.com/express42/reddit.git'
+        dest: /home/muxund/reddit
+        version: monolith # <-- Указываем нужную ветку
+      #tags: deploy-tag
+      tags: app-tag
+      notify: reload puma
+
+    - name: инсталирую bundle на app
+      bundler:
+        state: present
+        chdir: /home/muxund/reddit # <-- В какой директории выполнить команду bundle
+     # tags: deploy-tag 
+      tags: app-tag  
+     
+
+  handlers:
+  - name: restart mongod
+    become: true
+    service: name=mongod state=restarted
+    
+  - name: reload puma
+    become: true
+    service: name=puma state=restarted 
+
+
+```
+
+<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/7a52878a-ad17-44a7-a307-10d54c0b7495/oneplayonescen.png?AWSAccessKeyId=ASIAT73L2G45HOBQHFM6&Expires=1548835308&Signature=F2GHKWsHutLGxyBqUyVon4JTu%2Bk%3D&x-amz-security-token=FQoGZXIvYXdzEBAaDKFv2hlRTRvWbXo8GiK3A4MOL4eBpO8a%2FMtwYA0RV3ELQOMwXpp%2BRTO6SZGg7Dd3GpB3kT2WNJcbZ7%2BS0SjBYAcmUW7tSvxbYz%2B1EA6GC3XXdGpPngpdgzCBVAA%2BjGfJX1br9c17ZjNYlXMmCnH6wFFtRkyZN8Kyy2OWPxmZ%2F7ZQo4aga6gFpN%2BmpQOIj0iLLiGW8vIcWb6ePYuhZeFd%2FeSKqSNNvvVACO%2F7O1KK157%2FU5l2W7fCMpXgE%2B4MNrRZbgHG3n8LSajbXTf5ttzvCPW%2BGM2FN2B658vQiiR1eDxVLmnW1EehTi7Y4ii0ABFAVA2jS0vz20uxYp1QxGo8nkJ1TaQTpDPplWsH9RKqG0PrYpegCERzc7yN7lkx%2Ba%2FXt0dXRku%2FYoNg467syn6gpoYgXE43Ip5EmZC2%2FQuLxEssZYo%2F2V8HOUm%2BLi5I72kCbplz8qd29bskxPu%2F95bLL8WYjtwNs1byHwhr6EcLC9isVRNm%2F4%2BuMqqoLHL7UV0NSfTrnHSTcQwnUeYoMbn9S1SJzYg10p10FFHdAS0CXVAbPAN%2B%2FGH%2F3VH16TfSDkB8eQ6ZJENIlCxkNv3IuG6BYK%2B7f3a%2FS5Qosd6%2F4gU%3D"></img>
+
+
+
+* создан плэйбук с несколькими сценариями
+* добавлен по образцу сценарий для деплоя
+
+```
+
+✔ ~/otus/hw10/muxun_infra/ansible [ansible-2|✔] 
+10:55 $ cat reddit_app_multiple_plays.yml 
+---
+- name: Конфигурируем mongodb хост
+  hosts: db
+  tags: db-tag
+  become: true
+  vars:
+    mongo_bind_ip: 0.0.0.0
+  tasks:
+    - name: Меняю конфиг монги на db 
+      become: true
+      template:
+        src:  templates/mongod.conf.j2
+        dest: /etc/mongod.conf
+        mode: 0644
+      tags: db-tag 
+      notify: restart mongod
+  handlers:
+    - name: restart mongod
+      service: name=mongod state=restarted 
+    
+
+- name: Конфигурируем хост app
+  hosts: app
+  tags: app-tag
+  become: true
+  vars:
+    db_host: 10.132.0.50
+  tasks:
+    - name: Копируем юнит пума-сервис на app
+      copy:
+        src:   files/puma.service
+        dest: /etc/systemd/system/puma.service
+      notify: reload puma
+
+    - name: Добавляем конфиг подключения к бд на app
+      template:
+        src: templates/db_config.j2
+        dest: /home/muxund/db_config
+        owner: muxund
+        group: muxund
+
+    - name: enable puma для app
+      systemd: name=puma enabled=yes
+
+  handlers:    
+  - name: reload puma
+    service: name=puma state=restarted 
+
+
+- name: Деплой приложухи
+  hosts: app
+  tags: deploy-tag
+  become: true
+  tasks:
+    - name: граблю приложение из гита на апп
+      git:
+        repo: 'https://github.com/express42/reddit.git'
+        dest: /home/muxund/reddit
+        version: monolith 
+      notify: restart puma
+
+    - name: инсталирую bundle на app
+      bundler:
+        state: present
+        chdir: /home/muxund/reddit 
+
+  handlers:
+    - name: restart puma
+      become: true
+      systemd: name=puma state=restarted
+
+```
+
+<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/ecb50d66-3a42-496f-952c-1a976b76c883/multiplecneario.png?AWSAccessKeyId=ASIAT73L2G45BXVWHNL4&Expires=1548835300&Signature=B9Vv3iHADpVwnGxmTj3CufCoLSM%3D&x-amz-security-token=FQoGZXIvYXdzEBAaDBPLlI9NEA6JI8FadyK3A%2FOMK22s5I%2F6Mtck2ikT9Ssgwov4doSWwEkbYb5GeNn9SxdgeqOOQEFGTOfocKiWYtpuWyahhu6GAzM6dae0cnloA%2BQ0oE6Q1lKHCiz%2B0n6RWV%2BGTtLQNh%2BsIDy819Ih6skaKqxEVxWNTqXapf7EPYVEvzJTAP1YYrI5O9s3G9uOGSjURrb4mWyELOjydYkqmufvnyCDyhCHOLmLTU38i3BQuvBY12Yrkh5dIuAxetEOTS%2B5GFaWNd9QzBlHKOjLGJ4ie9MTojw2OpFjd3neuXBmw4RfsCiTJPlPloX%2FShXih8rPsesUu4mf7tSMq9rKbIVxmNR96tptwNwPNs5vTzSGL%2BX3m9LvZLGWQIHKmTRlcQ%2BuM8DEahSsW8ObYJc5d1yDTJw9J9iuIAVhOjht9t3dAcIxZ5fmxAoyo6g97mS0CIamTv8KJWiCbSRvPAaXueezbESxA6zUBJ7DZ704FsWVGfXBBSNbraN4NtUlqhHbCQ%2FsF3hv4on2fqMZOVE4hwmsulO0We8%2FCkbRbNB10dMD9CSDkdYuKtzlES8zf1fBTapdu8vR4WEB0pfwDR0zm4746hrtZjooluu%2F4gU%3D"></img>
+
+* на основе предыдущих наработок создано несколько плэйбуков и объеденены с помощью import_playbook в site.yml
+
+```
+
+✔ ~/otus/hw10/muxun_infra/ansible [ansible-2|✔] 
+11:06 $ cat app.yml db.yml deploy.yml
+---
+- name: Конфигурируем хост app
+  hosts: app
+  become: true
+  vars:
+    db_host: 10.132.15.194
+  tasks:
+    - name: Копируем юнит пума-сервис на app
+      copy:
+        src:   files/puma.service
+        dest: /etc/systemd/system/puma.service
+      notify: reload puma
+
+    - name: Добавляем конфиг подключения к бд на app
+      template:
+        src: templates/db_config.j2
+        dest: /home/muxund/db_config
+        owner: muxund
+        group: muxund
+
+    - name: enable puma для app
+      systemd: name=puma enabled=yes
+
+  handlers:
+  - name: reload puma
+    service: name=puma state=restarted
+
+---
+- name: Конфигурируем mongodb хост
+  hosts: db
+  become: true
+  vars:
+    mongo_bind_ip: 0.0.0.0
+
+  tasks:
+    - name: Меняю конфиг монги на db
+      become: true
+      template:
+        src:  templates/mongod.conf.j2
+        dest: /etc/mongod.conf
+        mode: 0644
+      notify: restart mongod
+
+  handlers:
+    - name: restart mongod
+      service: name=mongod state=restarted
+
+
+---
+
+- name: Деплой приложухи
+  hosts: app
+  tasks:
+    - name: граблю приложение из гита на апп
+      git:
+        repo: 'https://github.com/express42/reddit.git'
+        dest: /home/muxund/reddit
+        version: monolith
+      notify: restart puma
+
+    - name: инсталирую bundle на app
+      bundler:
+        state: present
+        chdir: /home/muxund/reddit
+
+  handlers:
+    - name: restart puma
+      become: true
+      systemd: name=puma state=restarted
+
+
+```
+
+<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/b4d5de0a-a1a3-4a00-95b0-c3c50b9b200a/siteplaybok.png?AWSAccessKeyId=ASIAT73L2G45NKA4IGFP&Expires=1548835706&Signature=7v4F63MzyiUbabM5V003%2FyAJT%2F8%3D&x-amz-security-token=FQoGZXIvYXdzEBAaDLtslAGySyHccT%2B42yK3Ay%2FjbK43hItaoZ%2FyzEUhWLAu2mTVRPTHPWU6C7U0S5BIn81P%2BmFfzU%2BnqK5gwVy6mvaXcTlMeRhB1gdQTy1TlBbIK%2BBcEiZGnYCp5hb3ae9Q7aTzyQb4C0i7kMbA0EqfOSG7oXw%2BYYAt%2BoHBNNUDSZieI4UA1IGyQMm0i7hB8tChfeKOV73RwWnPqGPgDF7IEgmQxzvNfWKTu7ZVH13SlPvJIkGmclrU%2BRU14dkzW0v2aZMN07JVPI1Sn7O5QJEIN%2BQccMgArPZchRg6y%2FQs6INIEcb%2FMCeci0%2BHm%2FaANwn1rhDW2fRxs8a7ZN53%2Bv3xQMCve1lrhL2q3K%2FdiDIWRjdNWP0hUZ66G7W7iWvuFjQWsSAE8MdgjCf%2BM8O0YFc00W4C5shivwNnVVcsExuWJiXVYSqjIv7S1HxZjoV0Dt7ZMHCOCaYn0bmpLBXNVEhDUulmVeIjc3GA1vzq8NjBRT0%2FaIs0KMOoQX9Wu4mltcKqNzbGIGGdtEDD8eD7JRcbZMA3bhe2JhZ8lqPwzOYl3dem7VhbxcovBHZS%2FsRjCaW1hmG5u2EUNPeXMymS%2F%2BPcUeA147qaIiUo5vG%2F4gU%3D"></img>
+
+
+* созданы ansible сценарии для провиженов
+
+```
+
+ ~/otus/hw10/muxun_infra/ansible [ansible-2|✔] 
+11:07 $ cat packer_*
+---
+- name: Install Ruby && Bundler
+  hosts: all
+  become: true
+  tasks:
+  # Установим в цикле все зависимости
+  - name: Install ruby and rubygems and required packages
+    apt: "name={{ item }} state=present"
+    with_items:
+      - ruby-full
+      - ruby-bundler
+      - build-essential
+---
+- name: Install MongoDB 3.2
+  hosts: all
+  become: true
+  tasks:
+  # Добавим ключ репозитория для последующей работы с ним
+  - name: Add APT key
+    apt_key:
+      id: EA312927
+      keyserver: keyserver.ubuntu.com
+
+  # Подключаем репозиторий с пакетами mongodb
+  - name: Add APT repository
+    apt_repository:
+      repo: deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse
+      state: present
+
+  # Выполним установку пакета
+  - name: Install mongodb package
+    apt:
+      name: mongodb-org
+      state: present
+
+  # Включаем сервис
+  - name: Configure service supervisor
+    systemd:
+      name: mongod
+      enabled: yes
+
+
+```
+
+* и созданы новые образы app и db
+* на основе образов пересоздана stage инфраструктура
+* применен ansible-playbook
+
+<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/60cf0422-9826-44e2-835f-0f242c533a62/.png?AWSAccessKeyId=ASIAT73L2G45EHF4HKSE&Expires=1548836023&Signature=cNX2LMgQUjsmoS4JSVfPNrmY4l4%3D&x-amz-security-token=FQoGZXIvYXdzEBAaDCJ4eBBhbRochVGzeiK3A3YLk3NUWJaiHPwlFGWUlXkya6SjR12CgmtxKyGvOeQqJ%2FKhaiJnUNDIwyLhKEYr93AoMI0rqTTeoV9Hv%2ByZEX2xiqu9d4%2FucQNCjc%2FPHlz926x8Z2TMi%2BgR%2FaQfTDz81hH2lagTFPxXqdT7QmE1QQOva0MndDnlAYoSbnwnGtMRSaWM1kaIX1tG8aP4FIi2ZreRGYzrZHb8vJRHdJw86%2Flw8EwzIin041LPVe8u9o0Cay7Xim%2BJtT5qPHQkTmzrOtEB4JVns0%2F%2F1m%2FJs7T2Eg7WdHqM5aeDWsiiPICxBVXk0f4kSKbcXOcsyznKSuSZC6gZtQX61UY7trKc%2BhhylbcBN8V5ufOz0%2BzWemldAIsaeK8lneuoYuMc4jycRAd8IK48Tnl1vWpDLcWtWgFeJjckryFkxHUmoK6FylRDEpAIfRrEPxKy8rhc8MSYW%2B3lqP4As1KawEGMIVyUAp5GIRE3K15ylKb7SWdEDiRUZC%2FyYb0%2FXL7UQEfDicbhalJwDf1LZnUt8NAEKRfzrSMdMRv%2BVS9Pw8VMSIhzvwOFpnPehr6LYWIp8bhTzmf6FO03%2B3zeL%2BOT6zgo8tq%2F4gU%3D"></img>
+
+
+
+</p>
+</details>
+
 
  
