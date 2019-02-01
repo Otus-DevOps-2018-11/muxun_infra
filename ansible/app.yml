@@ -4,7 +4,7 @@
   become: true
 
   vars:
-    db_host: 10.132.15.194
+    db_host: 10.132.15.196
 
   roles:
     - app
