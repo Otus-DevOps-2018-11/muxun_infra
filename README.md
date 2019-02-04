@@ -1117,3 +1117,7 @@ appserver
 
 
  
+<details><summary>Домашнее задание № 12 ansible-3</summary>
+<p>
+</p>
+</details>
