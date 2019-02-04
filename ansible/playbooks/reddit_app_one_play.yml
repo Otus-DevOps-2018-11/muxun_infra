@@ -1,0 +1,63 @@
+---
+- name: Config host and deploy application # Описание сценария
+  hosts: all # Хосты, на которых выполятся таски
+  vars:
+    mongo_bind_ip: 0.0.0.0 # переменная задается в vars
+    db_host: 10.132.0.48
+
+
+  tasks: # блок тасков(заданий)
+    - name: меняю конфиг монги на db 
+      become: true # выполняем задание от рута
+      template:
+        src:  templates/mongod.conf.j2 # путь до шаблона
+        dest: /etc/mongod.conf # целевой путь на удаленном хосте
+        mode: 0644  # права на файл
+      tags: db-tag   # тэги задания 
+      notify: restart mongod
+
+    - name: устанавливаю пума юнит на app
+      become: true
+      copy:
+        src:   files/puma.service
+        dest: /etc/systemd/system/puma.service
+      tags: app-tag
+      notify: reload puma
+
+    - name: добавляю конфиг подключения к бд на app
+      template:
+        src: templates/db_config.j2
+        dest: /home/muxund/db_config
+      tags: app-tag
+
+    - name: enable puma для app
+      become: true
+      systemd: name=puma enabled=yes
+      tags: app-tag
+
+    - name: граблю приложение из гита на апп
+      git:
+        repo: 'https://github.com/express42/reddit.git'
+        dest: /home/muxund/reddit
+        version: monolith # <-- Указываем нужную ветку
+      #tags: deploy-tag
+      tags: app-tag
+      notify: reload puma
+
+    - name: инсталирую bundle на app
+      bundler:
+        state: present
+        chdir: /home/muxund/reddit # <-- В какой директории выполнить команду bundle
+     # tags: deploy-tag 
+      tags: app-tag  
+     
+
+  handlers:
+  - name: restart mongod
+    become: true
+    service: name=mongod state=restarted
+    
+  - name: reload puma
+    become: true
+    service: name=puma state=restarted 
+    
