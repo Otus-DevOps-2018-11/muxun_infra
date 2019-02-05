@@ -1117,7 +1117,30 @@ appserver
 
 
  
-<details><summary>Домашнее задание № 12 ansible-3</summary>
+<details><summary> Домашнее задание № 10 ansible-3 </summary>
 <p>
+ * созданы роли для app и db, протестирован playbook
+  <img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/b7b8855c-f5ba-4221-92c6-a24daeb3c131/ansible-rolesdeploying.png?AWSAccessKeyId=ASIAT73L2G45HG2B6BHH&Expires=1549439120&Signature=c610Li5Wmvr%2BZQARz%2FBBn7As7y0%3D&x-amz-security-token=FQoGZXIvYXdzELP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaDJHQ5%2Fdu0QjGY3n3sCK3A5HXafhgWwDmKC0SdRBW1u%2Fuq9tc20qDDbeVbWBRibid8d94RLR5yuZBPhsiEKi6ekJdd1hlnP6eNc5S9%2FBzy0cok32EXSz7ATX8vDxoLvVXM2RQziyAWyvfnoCyq384E3zzDJY9naP6GC3vc1qeo0ogAoVi5hrH2GiDilcQl%2BWQddu8WMPKElDMtbwZFZjrBUhCaoCCGJokTuKP4cxXUgiJyqokj4BeV3RGpETeTOiLFiwx3cqfmHa4KeYAEFIV7ddzZ18Q3cu6WZnJ3nB01GHlXT9N2u4EmFECe6yIupXDCgdbqPHEQw68eLdaoPX0cSZ2LS6OEBOJHv%2BuCO36JnyfpU29bAUa9LiPgxRt2d%2B%2FbxaFopIOJCGx4u%2BAr0YdobbEhW9a0tGs3S88FJt4lyM9XSNp2cWbcBeyjSJURMRhtw3Ar7o22h%2BbzEnhsB%2F6G8AYII3uhzX1yPdMEuarP1XAo3Hjk%2FTSTQEL5k8yd0kvJgHb2M9GB9sJ74YHlJbPAyrrw8FmvOitsMW9ExE3KgLtRo8En9pthktqW1u8S4KMzuFPqHU3Mue%2BaCKFZz2eXdFVYhiC4Uwo9djj4gU%3D"></img>
+
+ * созданы окружения prod и stage c различными inventory файлами и group_vars
+ * проведена организация директории ansible с выделением playbooks, roles, environments
+ * проверены playbooks на stage и prod окружения
+
+ - stage
+ <img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/968b263c-7340-4819-a0fa-ff615aaa92d3/grandplaybookansible.png?AWSAccessKeyId=ASIAT73L2G45KHQDLEGM&Expires=1549439391&Signature=OtHFhnZziRC8zxKggvpaASk9jHc%3D&x-amz-security-token=FQoGZXIvYXdzELT%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaDKCY5cxB7OL%2FLmfyUSK3A%2Bgz4jyHNlrwd%2Boo85PJWm%2Bjxi3Lo8hBZU5IUHXIm0985REOfCN8xMuwu85BxzftWER91LfbEJhsBWhiggLnDHEEFlVEOeIBagZaXNaQUHqhcngPg8Km04YEB8hme1M6dysaxr%2FXU8EZuMuKihUlM5foKSWTJ2MbRP9Kd0fmI8A4VPXTBYlTPYhJAiKMK7puSl51JDtVSNCp2gPmCQjdzOZYFHfptaPGSSpE8%2Bu%2Bg92Ne003XgdKoTcmS74gLYZ5FWorfsD4JXJ5IlPbAzDmr%2FwNJTVWZwt83hqkhH0bKv2asNSOXyDa7D59R6ukxYi9j1fIZrezYTINrCjeJ1fv4p%2Bs%2F2RsLv4YQ%2Bs9EVnjF%2B5tpxyyXWsFY3vI6EYDvk7jZtLPatRw6oKAoNpJ1Lk6jr94bne%2BywlGfeQoi2LcjDSP5PqLrao1C12dVsjn224KcLg3nCStDX94Oc6wHvSOjA4AHaUFWaW72AB2fFl3mf9CVskfVQ8%2BozDdH53RXpncbym0JrhirXliOr3ag5LwWByJfxKb6n30Eo4ETAR%2B84KW2y1UDvPQa55BW2TrmSDf%2BccZwwbajJAord%2Fj4gU%3D"></img>
+
+ - prod
+<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/ec79141c-ad4d-4d06-9737-484e513ada6b/prodgrandansible.png?AWSAccessKeyId=ASIAT73L2G45NCDMUTMW&Expires=1549439468&Signature=IBFYcDAan1QQuS0twmAMf73dlqU%3D&x-amz-security-token=FQoGZXIvYXdzELP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaDIHEhoLDF4Fo0mecuSK3A56kTpJmiv6HzgezRt2wUfxUaF%2B7E6sXb0o2PL7iSVPmiFL9%2BST0LWCIDRsYRF9SUATq3KUX96wKGt8NthH6849Y28mUr%2FcQ9T640%2BUmXuwg4c%2BC9YSxVIDqwJq%2Fx2odIk9T87eTneVWqWJbCwqWnKI4Z%2FWfy3Y%2FumSRSPEkV%2F1BV1YJ7KN2rFm7kZqjrffJW0uiFyYLZ3CtxI7L4THpcLQ5nTDi34SbDvoTi8VZKhzsBcEwPQOG%2BvW1KXvhytcPyoYgGCtMkGTr3eVR48ixtH20uaOq8qprqXR940HTUqfPcZ33hcG6Zfuy2dgJwoxgL2LdeI8YCKiIbdoEnMixFsARiChK%2BCruarg8uayJYoBT4JyGIADP9BuIev8W%2BS%2BVFMFtT8fCyNDGM0ekWKqmJurzGMjn3mOx75N9b9Bgz2zcbHBh%2B9O9q3Jf3EJk4iqs3TGL8A7MLSsW3KNz6GL9TodD4vH0r0xN485BJSVS%2Foq%2F2r142EkYvhXwXhdqjDwV7dXMoiGlIG09wVgRv22eA19S%2Fn3kpQ6mJFoVfXvmqDhrLJCdz8lV2vzwdgkwC%2B4hXkQ2WItCCdYo887j4gU%3D"></img>
+
+ * в роли добавлена роль jdauphant.nginx из ansible-galaxy
+ * в конфиг terraform добавлено правило фаерволла на доступ по 80 порту
+ * проверена работа на stage окружении с применением роли nginx 
+   в процессе работы столкнулся с проблемой dpkg\lock для тасков роли nginx
+   проблемы решал вручную удалением локов и перезапуском плэйбука
+
+<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/51962773-0b23-4952-ab0b-886b2df0a551/deploywithnginx.png?AWSAccessKeyId=ASIAT73L2G45NKZQGLHA&Expires=1549439558&Signature=Ct69t96POXfrgIz%2BmPZ7AD8npHk%3D&x-amz-security-token=FQoGZXIvYXdzELT%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaDKDvW23Pv5OQV80kzyK3A2Non4lmcT59OgiuZ03cMsf5nbJycKdAtGml%2FuvPDXFvtYyutWUao%2Bmc1Rv4Byogjf0NGu0m2pCmg1eiZpbkOnMK9v8vcL8GUnCxnkZWzigeKpFdWq4wYgKYsB6rs4cApch9B1CVF82esLoatlqgOEU%2BeZQqX21NIBdQyvRfvLpg70yfGyItDVDfSNnTPurM31RJ3AumUL1JQvcS2zTksCPOeNxNk66GV0gYjH4hKYt3TL2%2B36ytmOC2MG4GvPbzfy032kJFmvjj6Fj5ZoRcywb1cWr1Ii3ZWxKK2QO1%2FEvkMrnfI7%2B8TajgpP9LcsM%2FQ2usEyZWgiLXiPVY9OnNqFihfYerxJjiuDCRkHkZaubatC0QqCVF7TylcGeFxPriQynPCOsZJHI9LB%2BA63lgTJYckRDKtKuVRFU9huTqfulQFyUuVlr0NV%2FCL6v6VO2zzFqUrnbUJ87Xsp5yKRBr3gjvwHsa48H9oG6by5GTKIb1HLl3icx6NPeCP9oxOZEZpR8XJ%2FF3C1DP0DKjPbtgwJXaTkG5ZRYijHPc8tNvF5qKpRfmox95bghBQfn37VMoHg6tNe4nkXIouePj4gU%3D"></img>
+
+ * использован ansible-vault для создания зашифрованного списка юзеров и паролей
+
 </p>
 </details>
