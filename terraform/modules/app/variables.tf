@@ -9,6 +9,6 @@ variable zone {
 
 variable app_disk_image {
   description = "Disk image for reddit app"
-#  default     = "reddit-app-1548414068"
+# default     = "reddit-app-1548414068"
   default = "reddit-app-1548687173"
 }

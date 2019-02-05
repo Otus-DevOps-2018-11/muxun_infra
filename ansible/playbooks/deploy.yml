@@ -1,16 +1,16 @@
 ---
 
-- name: Деплой приложухи
+- name: Deploying app
   hosts: app
   tasks:
-    - name: граблю приложение из гита на апп
+    - name: Download app from github
       git:
         repo: 'https://github.com/express42/reddit.git'
         dest: /home/muxund/reddit
         version: monolith
       notify: restart puma
 
-    - name: инсталирую bundle на app
+    - name: installing bundle on app-server
       bundler:
         state: present
         chdir: /home/muxund/reddit
