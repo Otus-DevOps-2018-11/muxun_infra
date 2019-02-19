@@ -6,14 +6,14 @@
     - name: Download app from github
       git:
         repo: 'https://github.com/express42/reddit.git'
-        dest: /home/muxund/reddit
+        dest: "/home/{{ deploy_user }}/reddit"
         version: monolith
       notify: restart puma
 
     - name: installing bundle on app-server
       bundler:
         state: present
-        chdir: /home/muxund/reddit
+        chdir: "/home/{{ deploy_user }}/reddit"
 
   handlers:
     - name: restart puma

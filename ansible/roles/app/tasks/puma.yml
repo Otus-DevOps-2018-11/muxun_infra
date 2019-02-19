@@ -1,17 +1,17 @@
 ---
 # tasks file for app
 - name: Copy unit file puma
-  copy:
-    src: puma.service
+  template:
+    src: puma.service.j2
     dest: /etc/systemd/system/puma.service
   notify: reload puma
 
 - name: Add config to db connections
   template:
     src: db_config.j2
-    dest: /home/muxund/db_config
-    owner: muxund
-    group: muxund
+    dest: "/home/{{ deploy_user }}/db_config"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
 
 - name: enable puma для app
   systemd: name=puma enabled=yes
