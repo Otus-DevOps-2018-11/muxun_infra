@@ -4,16 +4,20 @@
   hosts: app
   tasks:
     - name: Download app from github
+      become: yes
+      become_user: ubuntu
       git:
         repo: 'https://github.com/express42/reddit.git'
-        dest: /home/muxund/reddit
+        dest: "/home/{{ deploy_user }}/reddit"
         version: monolith
       notify: restart puma
 
     - name: installing bundle on app-server
+      become: yes
+      become_user: ubuntu
       bundler:
         state: present
-        chdir: /home/muxund/reddit
+        chdir: "/home/{{ deploy_user }}/reddit"
 
   handlers:
     - name: restart puma
